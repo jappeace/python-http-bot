@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import sys
+import names.names
 
 # read user input (how often to execute the code)
 default = 1

@@ -1,0 +1,3 @@
+[submodule "names"]
+	path = names
+	url = https://github.com/treyhunner/names.git
