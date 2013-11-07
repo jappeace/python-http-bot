@@ -1,14 +1,18 @@
 #!/usr/bin/python
-import sys
-import names.names
+#this file executes the user code and calls the main functionality n times
+#It also gives the name string to the functionality
+from sys import argv, path
+from os import getcwd
+path.append(getcwd() + "/names/")
+from names import get_first_name, get_last_name
 
 # read user input (how often to execute the code)
 default = 1
-if len(sys.argv) > 1:
-	loops = int(sys.argv[1])
+if len(argv) > 1:
+	loops = int(argv[1])
 	loops = loops if loops > 1 else default
 else:
 	loops = default
 
 for x in range(0, loops):
-	print ('Name:' + sys.argv[0])
+	print (get_first_name() + " " + get_last_name())
