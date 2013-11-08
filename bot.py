@@ -1,16 +1,36 @@
 from requests import get, codes, post
-from structure import site, page
+from structure import site
 class hyperTexter:
 	__mail = site('http://mailinator.com')
 	__vote = site('http://restaurantverkiezing.nl')
+
+	def __init__(self):
+		self.__mail.add('/inbox.jsp')
+		self.__vote.add('/')
+		self.__vote.add('/selecteer/dv/restaurantdegrillerije')
+		self.__vote.add('/state8/flow20551')
+
 	def vote(self, name):
+		vote = self.__vote
+		mail = self.__mail
 		print ('creating inbox for ' + name)
-		self.__mail.add(page('/inbox.jsp'))
-		if get(str(self.__mail),params={'to' : name }).status_code != codes.ok:
+		if get(mail.page(),params={'to' : name }).status_code != codes.ok:
 			return False
-		self.__vote.add(page('/state8/flow20551'))
-		cookieAcces = get(self.__vote)
-		rep = post(str(self.__vote),
+
+		print ('getting cookie')
+		cookieAcces = get(vote.page())
+		if cookieAcces.status_code != codes.ok:
+			return False
+		vote.cookie = cookieAcces.cookies["PHPSESSID"]
+		vote.nxt()
+
+		print('selecting the restaurant')
+		if get(vote.page(), cookies=vote.cookie).status_code != codes.ok:
+			return False
+		vote.nxt()
+
+		print('putting in score fields')
+		rep = post(vote.page(),
 				params = {
 					'form_id' : 'beoordelen',
 					'mField2' : '10',
