@@ -9,28 +9,32 @@ class hyperTexter:
 		self.__vote.add('/')
 		self.__vote.add('/selecteer/dv/restaurantdegrillerije')
 		self.__vote.add('/state8/flow20551')
+		self.__vote.add('/state9/flow20551')
+		self.__vote.add('/emaillogin/state9/flow20551')
 
 	def vote(self, name):
 		vote = self.__vote
 		mail = self.__mail
-		print ('creating inbox for ' + name)
+		print ('creating inbox for ' + name, mail.page())
 		if get(mail.page(),params={'to' : name }).status_code != codes.ok:
 			return False
 
-		print ('getting cookie')
+		print ('getting cookie', vote.page())
 		cookieAcces = get(vote.page())
 		if cookieAcces.status_code != codes.ok:
 			return False
-		vote.cookie = cookieAcces.cookies["PHPSESSID"]
+		vote.cookie = dict(PHPSESSID = cookieAcces.cookies["PHPSESSID"])
 		vote.nxt()
 
-		print('selecting the restaurant')
+		print('selecting the restaurant',vote.page())
 		if get(vote.page(), cookies=vote.cookie).status_code != codes.ok:
 			return False
 		vote.nxt()
+		if get(vote.page(), cookies=vote.cookie).status_code != codes.ok:
+			return False
 
-		print('putting in score fields')
-		rep = post(vote.page(),
+		print('putting in score fields', vote.page())
+		if post(vote.page(),
 				params = {
 					'form_id' : 'beoordelen',
 					'mField2' : '10',
@@ -39,6 +43,17 @@ class hyperTexter:
 					'mField7' : '10',
 					'mField40' : '',
 					'mField41' : ''
-				})
-		print(rep.status_code, rep.headers)
+				},
+				cookies=vote.cookie
+			).status_code != codes.ok:
+			return False
+		vote.nxt()
+
+		print('\'chosing\' mail', vote.page())
+		get(vote.page(), cookies=vote.cookie)
+		vote.nxt()
+
+		print('\'opening\' registery page', vote.page())
+		print(get(vote.page(), cookies=vote.cookie).text)
+		vote.nxt()
 		return True
