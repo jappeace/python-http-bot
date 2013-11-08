@@ -1,12 +1,16 @@
 from requests import get, codes, post
+from structure import site, page
 class hyperTexter:
-	__mail = 'http://mailinator.com'
-	__vote = 'http://restaurantverkiezing.nl'
+	__mail = site('http://mailinator.com')
+	__vote = site('http://restaurantverkiezing.nl')
 	def vote(self, name):
 		print ('creating inbox for ' + name)
-		if get(self.__mail + '/inbox.jsp',params={'to' : name }).status_code != codes.ok:
+		self.__mail.add(page('/inbox.jsp'))
+		if get(str(self.__mail),params={'to' : name }).status_code != codes.ok:
 			return False
-		rep = post(self.__vote + '/state8/flow20551',
+		self.__vote.add(page('/state8/flow20551'))
+		cookieAcces = get(self.__vote)
+		rep = post(str(self.__vote),
 				params = {
 					'form_id' : 'beoordelen',
 					'mField2' : '10',
@@ -16,6 +20,5 @@ class hyperTexter:
 					'mField40' : '',
 					'mField41' : ''
 				})
-		print(rep.read())
+		print(rep.status_code, rep.headers)
 		return True
-
