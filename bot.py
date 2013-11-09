@@ -1,5 +1,6 @@
 from requests import get, codes, post
 from structure import site
+
 class hyperTexter:
 	__mail = site('http://mailinator.com')
 	__vote = site('http://restaurantverkiezing.nl')
@@ -30,7 +31,7 @@ class hyperTexter:
 		if get(vote.page(), cookies=vote.cookie).status_code != codes.ok:
 			return False
 		vote.nxt()
-		if get(vote.page(), cookies=vote.cookie).status_code != codes.ok:
+		if not self.simpleGet(vote):
 			return False
 
 		print('putting in score fields', vote.page())
@@ -50,10 +51,16 @@ class hyperTexter:
 		vote.nxt()
 
 		print('\'chosing\' mail', vote.page())
-		get(vote.page(), cookies=vote.cookie)
+		if not self.simpleGet(vote):
+			return False
 		vote.nxt()
 
 		print('\'opening\' registery page', vote.page())
-		print(get(vote.page(), cookies=vote.cookie).text)
+		if not self.simpleGet(vote):
+			return False
 		vote.nxt()
 		return True
+
+	def simpleGet(self, page):
+		return get(page.page(), cookies=page.cookie).status_code == codes.ok
+
