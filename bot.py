@@ -7,11 +7,19 @@ class hyperTexter:
 
 	def __init__(self):
 		self.__mail.add('/inbox.jsp')
-		self.__vote.add('/')
-		self.__vote.add('/selecteer/dv/restaurantdegrillerije')
-		self.__vote.add('/state8/flow20551')
-		self.__vote.add('/state9/flow20551')
-		self.__vote.add('/emaillogin/state9/flow20551')
+		self.__vote.addAll([
+				'/',
+				'/selecteer/dv/restaurantdegrillerije',
+				'/state8/flow20551',
+				'/state9/flow20551',
+				'/emaillogin/state9/flow20551',
+				'/state10/flow20551',
+				'/state11/flow20551',
+				'/state12/flow20551', #no pink ribbon crap
+				'/state13/flow20551', # serverside rederict
+				'/state14/flow20551' #final page
+			])
+		self.counter = 0
 
 	def vote(self, name):
 		vote = self.__vote
@@ -24,11 +32,11 @@ class hyperTexter:
 		cookieAcces = get(vote.page())
 		if cookieAcces.status_code != codes.ok:
 			return False
-		vote.cookie = dict(PHPSESSID = cookieAcces.cookies["PHPSESSID"])
+		vote.cookie = {'PHPSESSID' : cookieAcces.cookies["PHPSESSID"]}
 		vote.nxt()
 
 		print('selecting the restaurant',vote.page())
-		if get(vote.page(), cookies=vote.cookie).status_code != codes.ok:
+		if not self.simpleGet(vote):
 			return False
 		vote.nxt()
 		if not self.simpleGet(vote):
@@ -51,16 +59,71 @@ class hyperTexter:
 		vote.nxt()
 
 		print('\'chosing\' mail', vote.page())
-		if not self.simpleGet(vote):
-			return False
+		self.simpleGet(vote)
 		vote.nxt()
 
 		print('\'opening\' registery page', vote.page())
-		if not self.simpleGet(vote):
+		self.simpleGet(vote)
+
+		email = name + '@mailtothis.com'
+		print('posting mail adress to:' + email)
+		if post(vote.page(),
+			params={
+				'form_id' : 'inloggen',
+				'mfield1' : name + '@mailtothis.com',
+				'mField5___email1_bChanged' : '1',
+				'mField5___email1_sText' : 'e-mailadres',
+				'mField5___email1' : email,
+				'mField5___email2_bChanged' : '1',
+				'mField5___email2_sText' : 'herhaal e-mailadres',
+				'mField5___email2' : email
+			}, cookies=vote.cookie).status_code != codes.ok:
 			return False
 		vote.nxt()
-		return True
 
-	def simpleGet(self, page):
-		return get(page.page(), cookies=page.cookie).status_code == codes.ok
+		print('deciding not to share', vote.page())
+		self.simpleGet(vote)
+
+		post(vote.page(), cookies=vote.cookie, params={
+			'form_id' : 'tellafriend'
+			})
+		vote.nxt()
+
+		birthday = {
+			'year' : '1990',
+			'month':'11',
+			'day':'10'
+		}
+
+		print('entering postcode, gender and birthdate', vote.page())
+		self.simpleGet(vote)
+		if post(vote.page(), cookies=vote.cookie,
+			params={
+				'form_id' : 'persoonsgegevens',
+				'mField10' : '514651', #gender: 514651 is male 514652 is female
+				'mField4___Part1' : '7776', #postalcode number
+				'mField4___Part2' : 'aa', #postalcode letter
+				'persoonsgegevens_mField11_iDay' : birthday['day'],
+				'persoonsgegevens_mField11_iMonth' : birthday['month'],
+				'persoonsgegevens_mField11_iYear' : birthday['year'],
+				'mField11' : birthday['day'] + '-' + birthday['month'] + '-' + birthday['year']
+			}).status_code != codes.ok:
+			return False
+		vote.nxt()
+
+		print('not support pink ribbon (is more work)', vote.page())
+		self.simpleGet(vote)
+		if post(vote.page(), cookies=vote.cookie, params={
+				'form_id' : 'step3first',
+				'iPartner' : '501052'
+				}).status_code != codes.ok:
+			return False
+		vote.nxt()
+		self.simpleGet(vote)
+		vote.nxt()
+		print('now visiting final page wich tells us to confirm our vote', vote.page())
+		self.simpleGet(vote)
+
+	def simpleGet(self, site):
+		return get(site.page(), cookies=site.cookie).status_code == codes.ok
 

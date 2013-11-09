@@ -5,6 +5,8 @@ class site:
 		self.__url = url
 	def add(self, page):
 		self.__pages.append(page)
+	def addAll(self, pages):
+		self.__pages.extend(pages)
 	def nxt(self):
 		self.__current += 1
 		if self.__current >= len(self.__pages):
