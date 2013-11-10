@@ -42,8 +42,9 @@ class hyperTexter:
 	def cycle(self, name):
 		vote = self.__vote
 		mail = self.__mail
+		mail.p = {"http": "http://127.0.0.1:9050"}
 		print ('creating inbox for ' + name)
-		if get(mail.page(),params={'to' : name }).status_code != codes.ok:
+		if get(mail.page(),params={'to' : name }, proxies=mail.p).status_code != codes.ok:
 			return False
 
 		print ('getting cookie')
@@ -133,7 +134,7 @@ class hyperTexter:
 			address = loads(get(mail.page(), params={
 				'box' : name,
 				'time' : temp
-				}).text)["address"]
+				}, proxies=mail.p).text)["address"]
 		except KeyError:
 			#mailinator needs script to timeout so I change the wireless
 			print("Changing network")
@@ -145,14 +146,14 @@ class hyperTexter:
 			'address' : address,
 			'inbox' : name,
 			'time' : temp
-			}))
+			}, proxies=mail.p))
 		mail.nxt()
 
 		print("getting the correct email")
 		email = BeautifulSoup(get(mail.page(), params={
 			"msgid" : emailId,
 			"time" : temp
-			}).text.encode('utf8'))
+			}, proxies=mail.p).text.encode('utf8'))
 
 		link = email.a.get('href')
 		print('parsing mail and clicking the link: '+ link)
@@ -184,8 +185,6 @@ class hyperTexter:
 		return "not found"
 
 	def switchNetwork(self):
-		print("sleeping to allow mailinator to catch up")
-		sleep(120)
 		nmoutput = getoutput("nm-tool")
 		searcher = "Wireless Access Points (* = current AP)"
 
