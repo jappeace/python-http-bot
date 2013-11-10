@@ -151,8 +151,11 @@ class hyperTexter:
 			}).text.encode('utf8'))
 
 		print('parsing mail and clicking the link')
-		result = get(email.a.get('href'))
-		return result.status_code == codes.ok
+		link = email.a.get('href')
+		if(link == "/"):
+			print('clicking failed')
+			return False
+		return get(link).status_code == codes.ok
 
 	def simpleGet(self, site):
 		return get(site.page(), cookies=site.cookie).status_code == codes.ok

@@ -19,11 +19,15 @@ else:
 # create connections
 robot = hyperTexter()
 
+looping = True
+i = 0
 # execute code
-for x in range(0, loops):
+while looping:
 	string = choice('-_. ');
 	if string == ' ':
 		string = ''
-	print("loop:" + str(x))
-	if False == robot.start(get_first_name() + string + get_last_name()):
-		x -= 1 #redo the loop
+	print("loop:" + str(i))
+	if robot.start(get_first_name() + string + get_last_name()):
+		i += 1
+	if i >= loops:
+		looping = False
