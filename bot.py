@@ -164,7 +164,6 @@ class hyperTexter:
 		try:
 			return get(link).status_code == codes.ok
 		except exceptions.MissingSchema:
-			print(str(email))
 			return False
 
 
@@ -177,8 +176,11 @@ class hyperTexter:
 	def searchMail(self, response):
 		inbox = loads(response.text)
 		for email in inbox["maildir"]:
-			if email['subject'] == "Bevestig nu je stem op Restaurant De Grillerije":
-				return email["id"]
+			try:
+				if email['subject'] == "Bevestig nu je stem op Restaurant De Grillerije":
+					return email["id"]
+			except KeyError:
+				pass
 		return "not found"
 
 	def switchNetwork(self):
