@@ -184,6 +184,8 @@ class hyperTexter:
 		return "not found"
 
 	def switchNetwork(self):
+		print("sleeping to allow mailinator to catch up")
+		sleep(120)
 		nmoutput = getoutput("nm-tool")
 		searcher = "Wireless Access Points (* = current AP)"
 
