@@ -163,7 +163,7 @@ class hyperTexter:
 			return False
 		try:
 			return get(link).status_code == codes.ok
-		except requests.exceptions.MissingSchema:
+		except exceptions.MissingSchema:
 			print(str(email))
 			return False
 
