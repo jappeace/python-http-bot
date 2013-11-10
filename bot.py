@@ -5,7 +5,7 @@ import string
 from time import time, sleep
 from json import loads
 from bs4 import BeautifulSoup
-from subprocess import call
+from subprocess import call, getoutput
 
 class hyperTexter:
 	__mail = site('http://mailinator.com')
@@ -128,8 +128,8 @@ class hyperTexter:
 
 		print('getting the address (mailinator crappy security)')
 		temp = str(round(time() * 10000))
+		mail.nxt()
 		try:
-			mail.nxt()
 			address = loads(get(mail.page(), params={
 				'box' : name,
 				'time' : temp
@@ -184,7 +184,7 @@ class hyperTexter:
 		return "not found"
 
 	def switchNetwork(self):
-		nmoutput = commands.getoutput("nm-tool")
+		nmoutput = getoutput("nm-tool")
 		searcher = "Wireless Access Points (* = current AP)"
 
 		# slice out the wireless section only (excluding the title above)
