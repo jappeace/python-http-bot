@@ -1,3 +1,5 @@
 *.swp
+*.html
+*.log
 *.swo
 __pycache__
