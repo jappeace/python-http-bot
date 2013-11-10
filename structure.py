@@ -10,8 +10,10 @@ class site:
 	def nxt(self):
 		self.__current += 1
 		if self.__current >= len(self.__pages):
-			self.current = 0
+			self.reset()
 			return False
 		return True
 	def page(self):
 		return self.__url + self.__pages[self.__current]
+	def reset(self):
+		self.__current = 0

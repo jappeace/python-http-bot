@@ -24,5 +24,6 @@ for x in range(0, loops):
 	string = choice('-_. ');
 	if string == ' ':
 		string = ''
-	if not robot.start(get_first_name() + string + get_last_name()):
+	print("loop:" + str(x))
+	if False == robot.start(get_first_name() + string + get_last_name()):
 		x -= 1 #redo the loop
