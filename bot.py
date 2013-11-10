@@ -1,6 +1,5 @@
 from requests import get, codes, post, exceptions
 from structure import site
-from subprocess import call
 
 class hyperTexter:
 	__mail = site('http://mailinator.com')
@@ -12,7 +11,6 @@ class hyperTexter:
 				'/',
 				'/selecteer/dv/restaurantdegrillerije',
 				'/state8/flow20551',
-				'/state9/flow20551',
 				'/emaillogin/state9/flow20551',
 				'/state10/flow20551',
 				'/state11/flow20551',
@@ -62,13 +60,6 @@ class hyperTexter:
 			return False
 		vote.nxt()
 
-		print('\'chosing\' mail', vote.page())
-		self.simpleGet(vote)
-		vote.nxt()
-
-		print('\'opening\' registery page', vote.page())
-		self.simpleGet(vote)
-
 		email = name + '@mailtothis.com'
 		print('posting mail adress to:' + email)
 		if post(vote.page(),
@@ -86,21 +77,17 @@ class hyperTexter:
 		vote.nxt()
 
 		print('deciding not to share', vote.page())
-		self.simpleGet(vote)
-
 		post(vote.page(), cookies=vote.cookie, data={
 			'form_id' : 'tellafriend'
 			})
 		vote.nxt()
 
+		print('entering postcode, gender and birthdate', vote.page())
 		birthday = {
 			'year' : '1990',
 			'month':'11',
 			'day':'10'
 		}
-
-		print('entering postcode, gender and birthdate', vote.page())
-		self.simpleGet(vote)
 		if post(vote.page(), cookies=vote.cookie,
 			data={
 				'form_id' : 'persoonsgegevens',
@@ -116,17 +103,11 @@ class hyperTexter:
 		vote.nxt()
 
 		print('not support pink ribbon (is more work)', vote.page())
-		self.simpleGet(vote)
 		if post(vote.page(), cookies=vote.cookie, data={
 				'form_id' : 'step3first',
 				'iPartner' : '501052'
 				}).status_code != codes.ok:
 			return False
-		vote.nxt()
-		self.simpleGet(vote)
-		vote.nxt()
-		print('now visiting final page wich tells us to confirm our vote', vote.page())
-		Self.simpleGet(vote)
 
 	def simpleGet(self, site):
 		return get(site.page(), cookies=site.cookie).status_code == codes.ok
