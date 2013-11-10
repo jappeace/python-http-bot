@@ -5,6 +5,7 @@ import string
 from time import time, sleep
 from json import loads
 from bs4 import BeautifulSoup
+from subprocess import call
 
 class hyperTexter:
 	__mail = site('http://mailinator.com')
@@ -127,14 +128,20 @@ class hyperTexter:
 				}).status_code != codes.ok:
 			return False
 
+
 		print('getting the address (mailinator crappy security)')
 		temp = str(round(time() * 10000))
-		mail.nxt()
-		address = loads(get(mail.page(), params={
-			'box' : name,
-			'time' : temp
-			}).text)["address"]
-
+		try:
+			mail.nxt()
+			address = loads(get(mail.page(), params={
+				'box' : name,
+				'time' : temp
+				}).text)["address"]
+		except KeyError:
+			#mailinator needs script to timeout so I change the wireless
+			print("Changing network")
+			self.switchNetwork()
+			return False
 		print('getting mailbox')
 		mail.nxt()
 		emailId = self.searchMail(get(mail.page(), params={
@@ -154,6 +161,7 @@ class hyperTexter:
 		link = email.a.get('href')
 		if(link == "/"):
 			print('clicking failed')
+			print(str(emailId))
 			return False
 		return get(link).status_code == codes.ok
 
@@ -165,3 +173,18 @@ class hyperTexter:
 		for email in inbox["maildir"]:
 			if email['subject'] == "Bevestig nu je stem op Restaurant De Grillerije":
 				return email["id"]
+		return "not found"
+
+	def switchNetwork(self):
+		nmoutput = commands.getoutput("nm-tool")
+		searcher = "Wireless Access Points (* = current AP)"
+
+		# slice out the wireless section only (excluding the title above)
+		slicedoutput = nmoutput[nmoutput.find(searcher)+len(searcher):]
+
+		trimmed_to_current = slicedoutput[slicedoutput.find("*")+1:]
+
+		if "Klooster" == trimmed_to_current[:trimmed_to_current.find(":")]:
+			call("nmcli dev wifi connect ARV7519C72EE5 password 1578A57BCE38", shell=True)
+		else:
+			call("nmcli dev wifi connect Klooster password 1234554321", shell=True)
