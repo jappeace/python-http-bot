@@ -1,4 +1,4 @@
-from requests import get, codes, post, exceptions
+from requests import get, codes, post, exceptions, Session
 from structure import site
 from random import choice
 import string
@@ -47,10 +47,8 @@ class hyperTexter:
 			return False
 
 		print ('getting cookie')
-		cookieAcces = get(vote.page())
-		if cookieAcces.status_code != codes.ok:
-			return False
-		vote.cookie = {'PHPSESSID' : cookieAcces.cookies["PHPSESSID"]}
+		vote.s = Session()
+		vote.s.get(vote.page())
 		vote.nxt()
 
 		print('selecting the restaurant')
@@ -59,7 +57,7 @@ class hyperTexter:
 		vote.nxt()
 
 		print('putting in score fields')
-		if post(vote.page(),
+		if vote.s.post(vote.page(),
 				data = {
 					'form_id' : 'beoordelen',
 					'mField2' : '10',
@@ -68,8 +66,7 @@ class hyperTexter:
 					'mField7' : '10',
 					'mField40' : '',
 					'mField41' : ''
-				},
-				cookies=vote.cookie
+				}
 			).status_code != codes.ok:
 			return False
 		vote.nxt()
@@ -79,7 +76,7 @@ class hyperTexter:
 			'spamgoes.in', 'mailismagic.com',
 			'reallymymail.com', 'sogetthis.com', 'monumentmail.com'])
 		print('posting mail adress to: ' + email)
-		if post(vote.page(),
+		if vote.s.post(vote.page(),
 			data={
 				'form_id' : 'inloggen',
 				'mField1' : name,
@@ -89,12 +86,12 @@ class hyperTexter:
 				'mField5___email2_bChanged' : '1',
 				'mField5___email2_sText' : 'herhaal e-mailadres',
 				'mField5___email2' : email
-			}, cookies=vote.cookie).status_code != codes.ok:
+			}).status_code != codes.ok:
 			return False
 		vote.nxt()
 
 		print('deciding not to share')
-		post(vote.page(), cookies=vote.cookie, data={
+		vote.s.post(vote.page(), data={
 			'form_id' : 'tellafriend'
 			})
 		vote.nxt()
@@ -107,7 +104,7 @@ class hyperTexter:
 			'day':choice(['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
 				'16', '17', '18', '19', '20', '21', '22', '23', '24', '25', '26', '27', '28'])
 		}
-		if post(vote.page(), cookies=vote.cookie,
+		if vote.s.post(vote.page(),
 			data={
 				'form_id' : 'persoonsgegevens',
 				'mField10' : choice(['514651', '514652']), #gender: 514651 is male 514652 is female
@@ -122,7 +119,7 @@ class hyperTexter:
 		vote.nxt()
 
 		print('not support pink ribbon (is more work)')
-		if post(vote.page(), cookies=vote.cookie, data={
+		if vote.s.post(vote.page(), data={
 				'form_id' : 'step3first',
 				'iPartner' : '501052'
 				}).status_code != codes.ok:
@@ -157,16 +154,25 @@ class hyperTexter:
 			"time" : temp
 			}).text.encode('utf8'))
 
-		print('parsing mail and clicking the link')
 		link = email.a.get('href')
+		print('parsing mail and clicking the link: '+ link)
+
 		if(link == "/"):
 			print('clicking failed')
 			print(str(emailId))
 			return False
-		return get(link).status_code == codes.ok
+		try:
+			return get(link).status_code == codes.ok
+		except requests.exceptions.MissingSchema:
+			print(str(email))
+			return False
+
 
 	def simpleGet(self, site):
-		return get(site.page(), cookies=site.cookie).status_code == codes.ok
+		if(hasattr(site, 's')):
+			return site.s.get(site.page()).status_code == codes.ok
+		else:
+			return get(site.page(), cookies=site.cookie).status_code == codes.ok
 
 	def searchMail(self, response):
 		inbox = loads(response.text)
