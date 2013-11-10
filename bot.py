@@ -1,5 +1,6 @@
-from requests import get, codes, post
+from requests import get, codes, post, exceptions
 from structure import site
+from subprocess import call
 
 class hyperTexter:
 	__mail = site('http://mailinator.com')
@@ -21,7 +22,12 @@ class hyperTexter:
 			])
 		self.counter = 0
 
-	def vote(self, name):
+	def start(self, name):
+		try:
+			return self.cycle(name)
+		except exceptions.ConnectionError:
+			return False
+	def cycle(self, name):
 		vote = self.__vote
 		mail = self.__mail
 		print ('creating inbox for ' + name, mail.page())
@@ -39,12 +45,10 @@ class hyperTexter:
 		if not self.simpleGet(vote):
 			return False
 		vote.nxt()
-		if not self.simpleGet(vote):
-			return False
 
 		print('putting in score fields', vote.page())
 		if post(vote.page(),
-				params = {
+				data = {
 					'form_id' : 'beoordelen',
 					'mField2' : '10',
 					'mField3' : '10',
@@ -68,9 +72,9 @@ class hyperTexter:
 		email = name + '@mailtothis.com'
 		print('posting mail adress to:' + email)
 		if post(vote.page(),
-			params={
+			data={
 				'form_id' : 'inloggen',
-				'mfield1' : name + '@mailtothis.com',
+				'mField1' : name + '@mailtothis.com',
 				'mField5___email1_bChanged' : '1',
 				'mField5___email1_sText' : 'e-mailadres',
 				'mField5___email1' : email,
@@ -84,7 +88,7 @@ class hyperTexter:
 		print('deciding not to share', vote.page())
 		self.simpleGet(vote)
 
-		post(vote.page(), cookies=vote.cookie, params={
+		post(vote.page(), cookies=vote.cookie, data={
 			'form_id' : 'tellafriend'
 			})
 		vote.nxt()
@@ -98,7 +102,7 @@ class hyperTexter:
 		print('entering postcode, gender and birthdate', vote.page())
 		self.simpleGet(vote)
 		if post(vote.page(), cookies=vote.cookie,
-			params={
+			data={
 				'form_id' : 'persoonsgegevens',
 				'mField10' : '514651', #gender: 514651 is male 514652 is female
 				'mField4___Part1' : '7776', #postalcode number
@@ -113,7 +117,7 @@ class hyperTexter:
 
 		print('not support pink ribbon (is more work)', vote.page())
 		self.simpleGet(vote)
-		if post(vote.page(), cookies=vote.cookie, params={
+		if post(vote.page(), cookies=vote.cookie, data={
 				'form_id' : 'step3first',
 				'iPartner' : '501052'
 				}).status_code != codes.ok:
@@ -122,8 +126,7 @@ class hyperTexter:
 		self.simpleGet(vote)
 		vote.nxt()
 		print('now visiting final page wich tells us to confirm our vote', vote.page())
-		self.simpleGet(vote)
+		Self.simpleGet(vote)
 
 	def simpleGet(self, site):
 		return get(site.page(), cookies=site.cookie).status_code == codes.ok
-
