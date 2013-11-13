@@ -53,15 +53,15 @@ class hyperTexter:
 		if not self.simpleGet(vote):
 			return False
 		vote.nxt()
-
+		numb = ['7', '8', '9','10']
 		print('putting in score fields')
 		if vote.s.post(vote.page(),
 				data = {
 					'form_id' : 'beoordelen',
-					'mField2' : '10',
-					'mField3' : '10',
-					'mField6' : '10',
-					'mField7' : '10',
+					'mField2' : choice(numb),
+					'mField3' : choice(numb),
+					'mField6' : choice(numb),
+					'mField7' : choice(numb),
 					'mField40' : '',
 					'mField41' : ''
 				}
@@ -125,6 +125,8 @@ class hyperTexter:
 		mail.nxt()
 		mail.selector = 'span a[target="_blank"]'
 		email = self.mailGet(name)
+		if email == False:
+			return False
 		link = BeautifulSoup(email.select(mail.selector)[0].encode('utf8')).a.get('href')
 		print('parsing mail and clicking the link: '+ link)
 		return get(link).status_code == codes.ok
@@ -145,7 +147,6 @@ class hyperTexter:
 			m.nxt()
 			print('trying to receive mail')
 			raw = get(m.page() + '+' + name + '+1')
-			print(raw.url)
 			soup = BeautifulSoup(raw.text.encode('utf8'))
 			if len(soup.select(m.selector)) >= 1:
 				return soup
