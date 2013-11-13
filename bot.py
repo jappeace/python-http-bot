@@ -8,13 +8,13 @@ from bs4 import BeautifulSoup
 from subprocess import call, getoutput
 
 class hyperTexter:
-	__mail = site('http://mailinator.com')
+	__mail = site('http://lazyinbox.com/')
 	__vote = site('http://restaurantverkiezing.nl')
 
 	def __init__(self):
 		self.__mail.addAll([
-			'/inbox.jsp',
-			'/set',
+			'/ShowMail',
+			'/ShowMessage',
 			'/grab',
 			'/rendermail.jsp'
 			])
@@ -43,7 +43,7 @@ class hyperTexter:
 		vote = self.__vote
 		mail = self.__mail
 		print ('creating inbox for ' + name)
-		if get(mail.page(),params={'to' : name }).status_code != codes.ok:
+		if post(mail.page(),data={'email' : name, 'submit':'Go' }).status_code != codes.ok:
 			return False
 
 		print ('getting cookie')
@@ -126,45 +126,12 @@ class hyperTexter:
 			return False
 
 
-		print('getting the address (mailinator crappy security)')
-		temp = str(round(time() * 10000))
-		mail.nxt()
-		try:
-			address = loads(get(mail.page(), params={
-				'box' : name,
-				'time' : temp
-				}).text)["address"]
-		except KeyError:
-			#mailinator needs script to timeout so I change the wireless
-			print("failed")
-			#self.switchNetwork()
-			return False
-		print('getting mailbox')
-		mail.nxt()
-		emailId = self.searchMail(get(mail.page(), params={
-			'address' : address,
-			'inbox' : name,
-			'time' : temp
-			}))
-		mail.nxt()
-
 		print("getting the correct email")
-		email = BeautifulSoup(get(mail.page(), params={
-			"msgid" : emailId,
-			"time" : temp
-			}).text.encode('utf8'))
+		email = mailGet(name)
 
-		link = email.a.get('href')
+		link = email.select('a[target="_blank"]').get('href')
 		print('parsing mail and clicking the link: '+ link)
-
-		if(link == "/"):
-			print('clicking failed')
-			print(str(emailId))
-			return False
-		try:
-			return get(link).status_code == codes.ok
-		except exceptions.MissingSchema:
-			return False
+		return get(link).status_code == codes.ok
 
 
 	def simpleGet(self, site):
@@ -172,27 +139,11 @@ class hyperTexter:
 			return site.s.get(site.page()).status_code == codes.ok
 		else:
 			return get(site.page(), cookies=site.cookie).status_code == codes.ok
-
-	def searchMail(self, response):
-		inbox = loads(response.text)
-		for email in inbox["maildir"]:
-			try:
-				if email['subject'] == "Bevestig nu je stem op Restaurant De Grillerije":
-					return email["id"]
-			except KeyError:
-				pass
-		return "not found"
-
-	def switchNetwork(self):
-		nmoutput = getoutput("nm-tool")
-		searcher = "Wireless Access Points (* = current AP)"
-
-		# slice out the wireless section only (excluding the title above)
-		slicedoutput = nmoutput[nmoutput.find(searcher)+len(searcher):]
-
-		trimmed_to_current = slicedoutput[slicedoutput.find("*")+1:]
-
-		if "Klooster" == trimmed_to_current[:trimmed_to_current.find(":")]:
-			call("nmcli dev wifi connect ARV7519C72EE5 password 1578A57BCE38", shell=True)
-		else:
-			call("nmcli dev wifi connect Klooster password 1234554321", shell=True)
+	def mailGet(self, name, limit = 5):
+		for x in range(0, limit):
+			raw = get(self.__mail.page() + '+' + name + '+1')
+			print(raw)
+			soup = BeautifulSoup(raw.text.encode('utf8'))
+			if len(soup.select('table')) >= 1:
+				return soup
+		return False
