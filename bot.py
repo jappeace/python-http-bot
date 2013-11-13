@@ -14,9 +14,7 @@ class hyperTexter:
 	def __init__(self):
 		self.__mail.addAll([
 			'/ShowMail',
-			'/ShowMessage',
-			'/grab',
-			'/rendermail.jsp'
+			'/ShowMessage'
 			])
 		self.__vote.addAll([
 				'/',
@@ -124,7 +122,9 @@ class hyperTexter:
 
 
 		print("getting the correct email")
-		email = mailGet(name)
+		mail.nxt()
+		email = self.mailGet(name)
+		print(email.select('table a[target="_blank"]'))
 
 		link = email.select('a[target="_blank"]').get('href')
 		print('parsing mail and clicking the link: '+ link)
@@ -139,7 +139,6 @@ class hyperTexter:
 	def mailGet(self, name, limit = 5):
 		for x in range(0, limit):
 			raw = get(self.__mail.page() + '+' + name + '+1')
-			print(raw)
 			soup = BeautifulSoup(raw.text.encode('utf8'))
 			if len(soup.select('table')) >= 1:
 				return soup

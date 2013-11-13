@@ -23,7 +23,7 @@ looping = True
 i = 0
 # execute code
 while looping:
-	string = choice('-_. ');
+	string = choice('_ ');
 	if string == ' ':
 		string = ''
 	print("loop:" + str(i))
