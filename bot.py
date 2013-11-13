@@ -53,7 +53,7 @@ class hyperTexter:
 		if not self.simpleGet(vote):
 			return False
 		vote.nxt()
-		numb = ['7', '8', '9','10']
+		numb = ['7', '8', '8', '9', '9', '9','10','10','10','10']
 		print('putting in score fields')
 		if vote.s.post(vote.page(),
 				data = {
