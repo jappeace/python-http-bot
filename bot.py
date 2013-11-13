@@ -71,10 +71,7 @@ class hyperTexter:
 			return False
 		vote.nxt()
 
-		email = name + '@' + choice([
-			'mailtothis.com', 'mailinator.net',
-			'spamgoes.in', 'mailismagic.com',
-			'reallymymail.com', 'sogetthis.com', 'monumentmail.com'])
+		email = name + '@lazyinbox.com'
 		print('posting mail adress to: ' + email)
 		if vote.s.post(vote.page(),
 			data={
