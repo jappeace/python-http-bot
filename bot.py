@@ -123,10 +123,9 @@ class hyperTexter:
 
 		print("getting the correct email")
 		mail.nxt()
+		mail.selector = 'span a[target="_blank"]'
 		email = self.mailGet(name)
-		print(email.select('table a[target="_blank"]'))
-
-		link = email.select('a[target="_blank"]').get('href')
+		link = BeautifulSoup(email.select(mail.selector)[0].encode('utf8')).a.get('href')
 		print('parsing mail and clicking the link: '+ link)
 		return get(link).status_code == codes.ok
 
@@ -136,10 +135,18 @@ class hyperTexter:
 			return site.s.get(site.page()).status_code == codes.ok
 		else:
 			return get(site.page(), cookies=site.cookie).status_code == codes.ok
-	def mailGet(self, name, limit = 5):
+	def mailGet(self, name, limit = 20):
+		m = self.__mail
 		for x in range(0, limit):
-			raw = get(self.__mail.page() + '+' + name + '+1')
+			m.reset()
+			print('bumping system to receive mail')
+			post(m.page(),data={'email' : name, 'submit':'Go' })
+
+			m.nxt()
+			print('trying to receive mail')
+			raw = get(m.page() + '+' + name + '+1')
+			print(raw.url)
 			soup = BeautifulSoup(raw.text.encode('utf8'))
-			if len(soup.select('table')) >= 1:
+			if len(soup.select(m.selector)) >= 1:
 				return soup
 		return False
