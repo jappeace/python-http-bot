@@ -136,8 +136,8 @@ class hyperTexter:
 				}).text)["address"]
 		except KeyError:
 			#mailinator needs script to timeout so I change the wireless
-			print("Changing network")
-			self.switchNetwork()
+			print("failed")
+			#self.switchNetwork()
 			return False
 		print('getting mailbox')
 		mail.nxt()
