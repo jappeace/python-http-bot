@@ -43,14 +43,14 @@ class hyperTexter:
 		mail.s = Session()
 		mail.d = choice(['jourrapide.com', 'teleworm.us', 'superrito.com', 'rhyta.com',
 			'gustr.com', 'fleckens.hu', 'einrot.com', 'dayrep.com', 'cuvox.de', 'armyspy.com'])
-		mail.add('/inbox/' + mail.d +'/'+ name)
+		mail.add('/inbox/' + mail.d +'/'+ name.lower() + '/')
 		print ('creating inbox for ' + name)
-		if mail.s.get(mail.page(),params={'u' : name, 'd':'Set temporary e-mail' }).status_code != codes.ok:
+		if mail.s.get(mail.page(),params={'u' : name, 'd':'@'+ mail.d }).status_code != codes.ok:
 			return False
 		mail.nxt()
-		if mail.s.get(mail.page(),params={'u' : name, 'd':'Set temporary e-mail' }).status_code != codes.ok:
+		if mail.s.get(mail.page(),params={'u' : name, 'd':'@' + mail.d }).status_code != codes.ok:
 			return False
-		mail.nxt()
+
 		print ('getting cookie')
 		vote.s = Session()
 		vote.s.get(vote.page())
@@ -128,13 +128,14 @@ class hyperTexter:
 			return False
 
 
-		print("getting the correct email")
 		mail.nxt()
-		mail.selector = 'span a[target="_blank"]'
-		email = self.mailGet(name)
+
+		print("getting the correct email")
+		email = self.mailGet()
 		if email == False:
 			return False
-		link = BeautifulSoup(email.select(mail.selector)[0].encode('utf8')).a.get('href')
+		email = mail.s.get(email.find('iframe').get('src'))
+		link = BeautifulSoup(email.text.encode('utf8')).a.get('href')
 		print('parsing mail and clicking the link: '+ link)
 		return get(link).status_code == codes.ok
 
@@ -144,10 +145,12 @@ class hyperTexter:
 			return site.s.get(site.page()).status_code == codes.ok
 		else:
 			return get(site.page(), cookies=site.cookie).status_code == codes.ok
-	def mailGet(self, name, limit = 20):
+	def mailGet(self, limit = 20):
 		mail = self.__mail
 		for x in range(0, limit):
-			response = get(mail.page())
-			if not 'Location' in response.headers:
-				return BeautifulSoup(mail.text.encode('utf8'))
+			print ('attempting to get mail: ' + str(x))
+			response = mail.s.get(mail.page())
+			if response.url == mail.page():
+				print('found it')
+				return BeautifulSoup(response.text.encode('utf8'))
 		return False
