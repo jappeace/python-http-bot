@@ -145,16 +145,9 @@ class hyperTexter:
 		else:
 			return get(site.page(), cookies=site.cookie).status_code == codes.ok
 	def mailGet(self, name, limit = 20):
-		m = self.__mail
+		mail = self.__mail
 		for x in range(0, limit):
-			m.reset()
-			print('bumping system to receive mail')
-			post(m.page(),data={'email' : name, 'submit':'Go' })
-
-			m.nxt()
-			print('trying to receive mail')
-			raw = get(m.page() + '+' + name + '+1')
-			soup = BeautifulSoup(raw.text.encode('utf8'))
-			if len(soup.select(m.selector)) >= 1:
-				return soup
+			response = get(mail.page())
+			if not 'Location' in response.headers:
+				return BeautifulSoup(mail.text.encode('utf8'))
 		return False
