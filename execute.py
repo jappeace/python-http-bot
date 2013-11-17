@@ -23,11 +23,8 @@ looping = True
 i = 0
 # execute code
 while looping:
-	string = choice('_ ');
-	if string == ' ':
-		string = ''
 	print("loop:" + str(i))
-	if robot.start(get_first_name() + string + get_last_name()):
+	if robot.start(get_first_name() + get_last_name()):
 		i += 1
 	if i >= loops:
 		looping = False
