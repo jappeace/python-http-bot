@@ -145,7 +145,7 @@ class hyperTexter:
 			return site.s.get(site.page()).status_code == codes.ok
 		else:
 			return get(site.page(), cookies=site.cookie).status_code == codes.ok
-	def mailGet(self, limit = 20):
+	def mailGet(self, limit = 30):
 		mail = self.__mail
 		for x in range(0, limit):
 			print ('attempting to get mail: ' + str(x))
