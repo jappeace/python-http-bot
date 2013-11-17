@@ -8,13 +8,13 @@ from bs4 import BeautifulSoup
 from subprocess import call, getoutput
 
 class hyperTexter:
-	__mail = site('http://lazyinbox.com/')
+	__mail = site('http://www.fakemailgenerator.com')
 	__vote = site('http://restaurantverkiezing.nl')
 
 	def __init__(self):
 		self.__mail.addAll([
-			'/ShowMail',
-			'/ShowMessage'
+			'/active.php',
+			'/checkemail.php'
 			])
 		self.__vote.addAll([
 				'/',
@@ -40,10 +40,17 @@ class hyperTexter:
 	def cycle(self, name):
 		vote = self.__vote
 		mail = self.__mail
+		mail.s = Session()
+		mail.d = choice(['jourrapide.com', 'teleworm.us', 'superrito.com', 'rhyta.com',
+			'gustr.com', 'fleckens.hu', 'einrot.com', 'dayrep.com', 'cuvox.de', 'armyspy.com'])
+		mail.add('/inbox/' + mail.d +'/'+ name)
 		print ('creating inbox for ' + name)
-		if post(mail.page(),data={'email' : name, 'submit':'Go' }).status_code != codes.ok:
+		if mail.s.get(mail.page(),params={'u' : name, 'd':'Set temporary e-mail' }).status_code != codes.ok:
 			return False
-
+		mail.nxt()
+		if mail.s.get(mail.page(),params={'u' : name, 'd':'Set temporary e-mail' }).status_code != codes.ok:
+			return False
+		mail.nxt()
 		print ('getting cookie')
 		vote.s = Session()
 		vote.s.get(vote.page())
@@ -69,7 +76,7 @@ class hyperTexter:
 			return False
 		vote.nxt()
 
-		email = name + '@lazyinbox.com'
+		email = name + '@' + mail.d
 		print('posting mail adress to: ' + email)
 		if vote.s.post(vote.page(),
 			data={
